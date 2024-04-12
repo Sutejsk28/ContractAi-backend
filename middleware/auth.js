@@ -4,7 +4,11 @@ import { User } from "../models/user.js";
 import { asyncError } from "./error.js";
 
 export const isAuthenticated = asyncError(async (req, res, next) => {
-  const { token } = req.cookies;
+
+  let token = req.headers.authorization;
+  if (/Bearer *(.+)/.test(token)) token = /Bearer *(.+)/.exec(token)[1];
+  console.log(token)
+  
   if (!token) return next(new ErrorHandler("Login to access", 401));
 
   const decodedData = jwt.verify(token, process.env.JWT_SECRET);

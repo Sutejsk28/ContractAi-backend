@@ -8,7 +8,7 @@ export const sendToken = (user, res, message, statusCode) => {
     .status(statusCode)
     .cookie("token", token, {
       expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-      secure: true,
+      secure: false,
       httpOnly: false, // Allow JavaScript to access the cookie
       sameSite: "None",
     })
