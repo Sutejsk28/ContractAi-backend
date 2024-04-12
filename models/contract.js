@@ -22,6 +22,10 @@ const contractSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  riskText: {
+    type: String,
+    default: null,
+  },
   initiatedDate: {
     type: Date,
     required: true,

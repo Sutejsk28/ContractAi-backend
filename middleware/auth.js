@@ -7,7 +7,6 @@ export const isAuthenticated = asyncError(async (req, res, next) => {
 
   let token = req.headers.authorization;
   if (/Bearer *(.+)/.test(token)) token = /Bearer *(.+)/.exec(token)[1];
-  console.log(token)
   
   if (!token) return next(new ErrorHandler("Login to access", 401));
 

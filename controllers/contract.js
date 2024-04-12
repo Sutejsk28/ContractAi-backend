@@ -57,7 +57,13 @@ export const createContract = asyncError(async (req, res, next) => {
 
   let summary = null;
   let pdfText = null;
+  let riskText = null
   let tags = [];
+  
+  const id = name+req.user.name;
+  const hash = crypto.createHash("sha256").update(id).digest("hex");
+  const contractNumber = parseInt(hash.substring(0, 8), 16);
+  const userId = req.user._id;
 
   const response = await axios.post(
     "http://127.0.0.1:8000/generate-contract-summary/",
@@ -72,6 +78,7 @@ export const createContract = asyncError(async (req, res, next) => {
 
   pdfText = response.data.pdf_text;
   summary = response.data.summary;
+  riskText = response.data.analysis_text
 
   response.data.tags.map((ele, ind) => {
     tags.push({
@@ -80,10 +87,6 @@ export const createContract = asyncError(async (req, res, next) => {
     });
   });
 
-  const hash = crypto.createHash("sha256").update(name).digest("hex");
-  const contractNumber = parseInt(hash.substring(0, 8), 16);
-  const userId = req.user._id;
-
   const contract = await Contract.create({
     name,
     contractNumber,
@@ -91,6 +94,7 @@ export const createContract = asyncError(async (req, res, next) => {
     pdfText,
     tags,
     userId,
+    riskText,
     expireDate: new Date(expireDate),
     initiatedDate: new Date(initiatedDate),
   });
