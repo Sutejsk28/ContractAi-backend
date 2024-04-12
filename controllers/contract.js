@@ -5,10 +5,17 @@ import crypto from "crypto";
 import moment from "moment";
 import axios from "axios";
 import FormData from "form-data";
+import { getObjectURL, putObjectURL } from "../aws/s3.js";
 
 export const getAllContractsByUser = asyncError(async (req, res, next) => {
   const userId = req.user._id;
   const contracts = await Contract.find({ userId });
+
+  contracts.map(async (contract) => {
+    if (contract.fileKey) {
+      contract.fileUrl = await getObjectURL(contract.fileKey)
+    }
+  })
 
   res.status(200).json({
     success: true,
@@ -36,6 +43,8 @@ export const getContractById = asyncError(async (req, res, next) => {
     return next(new ErrorHandler("Unauthorized access", 403));
   }
 
+  contract.fileUrl = await getObjectURL(contract.fileKey);
+
   res.status(200).json({
     success: true,
     message: `Contract with id: ${req.params.id}`,
@@ -47,6 +56,7 @@ export const getContractById = asyncError(async (req, res, next) => {
 
 export const createContract = asyncError(async (req, res, next) => {
   const { name, expireDate, initiatedDate } = req.body;
+
 
   const fileBuffer = req.file.buffer;
   const formData = new FormData();
@@ -64,6 +74,10 @@ export const createContract = asyncError(async (req, res, next) => {
   const hash = crypto.createHash("sha256").update(id).digest("hex");
   const contractNumber = parseInt(hash.substring(0, 8), 16);
   const userId = req.user._id;
+
+  console.log(contractNumber);
+
+  const fileKey = await putObjectURL(req.file, contractNumber);
 
   const response = await axios.post(
     "http://127.0.0.1:8000/generate-contract-summary/",
@@ -95,6 +109,7 @@ export const createContract = asyncError(async (req, res, next) => {
     tags,
     userId,
     riskText,
+    fileKey,
     expireDate: new Date(expireDate),
     initiatedDate: new Date(initiatedDate),
   });

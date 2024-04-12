@@ -63,6 +63,13 @@ const contractSchema = new mongoose.Schema({
     enum: ["drafted", "inNegotiations", "approved"],
     default: "drafted",
   },
+  fileKey: {
+    type: String,
+    required: true,
+  },
+  fileUrl: {
+    type: String,
+  },
   isActive: {
     type: Boolean,
     required: true,
